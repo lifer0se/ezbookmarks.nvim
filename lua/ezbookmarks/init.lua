@@ -73,7 +73,7 @@ M.OpenBookmark = function(opts)
 	f:close()
 
 	pickers.new(opts, {
-		prompt_title = "Open a bookmark.",
+		prompt_title = "Open a bookmark",
 		finder = finders.new_table {
 			results = lines
 		},
@@ -101,7 +101,7 @@ M.RemoveBookmark = function(opts)
 	end
 
 	pickers.new(opts, {
-		prompt_title = "Remove a bookmark.",
+		prompt_title = "Remove a bookmark",
 		finder = finders.new_table {
 			results = lines
 		},
