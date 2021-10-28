@@ -4,13 +4,18 @@
 
 local pickers = require "telescope.pickers"
 local finders = require "telescope.finders"
+local previewers = require "telescope.previewers"
+local make_entry = require "telescope.make_entry"
 local conf = require("telescope.config").values
 local actions = require "telescope.actions"
 local action_state = require "telescope.actions.state"
 local utils = require "ezbookmarks.utils"
 local bookmark_file = vim.fn.stdpath('data') .. '/ezbookmarks.txt'
-local M = {}
+local f = assert(io.popen("echo $HOME", 'r'))
+local home_path = assert(f:read('*a')):gsub("\n","")
+f:close()
 
+local M = {}
 
 M.AddBookmark = function()
   local path = vim.fn.expand("%:p")
@@ -83,8 +88,6 @@ end
 
 local function open_function(selection)
   if selection ~= nil then
-    local path = selection[1]:match("(.*/)")
-    vim.cmd(':cd ' .. path)
     vim.cmd(':edit ' .. utils.get_path_from_config(selection[1]))
   end
 end
@@ -99,24 +102,36 @@ M.OpenBookmark = function(opts)
   local n = {}
   for k, v in pairs(lines) do
     if vim.fn.filereadable(v) == 1 then
-      n[#n + 1] = v
+      if string.sub(v, 0, #home_path) == home_path then
+        n[#n + 1] = "~" .. string.sub(v, #home_path + 1, #v)
+      else
+        n[#n + 1] = v
+      end
     elseif vim.fn.isdirectory(v) == 1 then
       local p = io.popen("find ".. v .." -type f")
       for f in p:lines() do
         local tmp = string.sub(f, #v + 1, #f)
         if not string.find(tmp, ".git") then
-          n[#n + 1] = f
+          if string.sub(f, 0, #home_path) == home_path then
+            n[#n + 1] = "~" .. string.sub(f, #home_path + 1, #f)
+          else
+            n[#n + 1] = f
+          end
         end
       end
     end
   end
-
+  opts = opts or {}
   pickers.new(opts, {
     prompt_title = "Open a bookmark",
     finder = finders.new_table {
       results = n
     },
-    sorter = conf.generic_sorter(opts),
+    layout_config = {
+      preview_width = 0.5,
+    },
+    sorter = conf.file_sorter(opts),
+    previewer = conf.file_previewer(opts),
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
@@ -151,12 +166,17 @@ M.RemoveBookmark = function(opts)
     return
   end
 
+  opts = opts or {}
   pickers.new(opts, {
     prompt_title = "Remove a bookmark",
     finder = finders.new_table {
-      results = lines
+      results = lines,
     },
-    sorter = conf.generic_sorter(opts),
+    layout_config = {
+      preview_width = 0.5,
+    },
+    sorter = conf.file_sorter(opts),
+    previewer = conf.file_previewer(opts),
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
