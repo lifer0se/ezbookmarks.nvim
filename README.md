@@ -21,6 +21,13 @@ Plug 'lifer0se/ezbookmarks.nvim'
 :lua require"ezbookmarks".AddBookmark()
 ```
 
+#### To add a directory as a bookmark:
+
+```lua
+:lua require"ezbookmarks".AddBookmarkDirectory()
+```
+A bookmark directory will include all the files in that directory and it's sub-directories to the OpenBookmark list.
+
 #### To remove a bookmark:
 
 ```lua
