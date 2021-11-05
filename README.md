@@ -2,7 +2,7 @@
 
 #### A bookmark plugin.
 Simply add your current buffer to the bookmark list, then browse through the list (requires telescope).
-
+You can even bookmark a directory and have access to all files in that directory.
 
 ## Installation
 #### Requires neovim 0.5.0+
@@ -33,6 +33,7 @@ A bookmark directory will include all the files in that directory and it's sub-d
 ```lua
 :lua require"ezbookmarks".RemoveBookmark()
 ```
+When removing a directory from bookmarks, only the directory will appear on the list, not all included files.
 
 #### To browse through your bookmarks:
 
@@ -49,3 +50,7 @@ require('ezbookmarks').setup{
   open_new_tab = 1,       -- open bookmark in a new tab.
 }
 ```
+
+Running the setup function is not necessary, the plugin will work without it.
+
+Let me know if there's any other options or features you'd like to see :)
