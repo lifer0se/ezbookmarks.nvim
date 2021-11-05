@@ -14,12 +14,14 @@ Plug 'nvim-telescope/telescope.nvim'
 Plug 'lifer0se/ezbookmarks.nvim'
 ```
 
+
 ## Commands
 #### To add a bookmark:
 
 ```lua
 :lua require"ezbookmarks".AddBookmark()
 ```
+
 
 #### To add a directory as a bookmark:
 
@@ -30,17 +32,20 @@ A bookmark directory will include all the files in that directory and it's sub-d
 
 When removing a directory from bookmarks, only the directory will appear on the list, not all included files.
 
+
 #### To remove a bookmark:
 
 ```lua
 :lua require"ezbookmarks".RemoveBookmark()
 ```
 
+
 #### To browse through your bookmarks:
 
 ```lua
 :lua require"ezbookmarks".OpenBookmark()
 ```
+
 
 ## Options
 
