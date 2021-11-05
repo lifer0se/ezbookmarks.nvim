@@ -3,6 +3,10 @@
 -----------------------------
 
 local bookmark_file = vim.fn.stdpath('data') .. '/ezbookmarks.txt'
+local u = assert(io.popen("echo $HOME", 'r'))
+local home_path = assert(u:read('*a')):gsub("\n","")
+u:close()
+
 local M = {}
 
 M.get_lines_from_bookmark_file = function ()
@@ -52,11 +56,14 @@ M.bookmark_exists = function (path)
   return 0
 end
 
-
-M.get_path_from_config = function (config)
-  for token in string.gmatch(config, "[^%s]+") do
-    return token
+M.sub_home_path = function (file)
+  if string.sub(file, 0, #home_path) == home_path then
+    return "~" .. string.sub(file, #home_path + 1, #file)
   end
+end
+
+M.get_path_from_file = function (file)
+  return file:match("(.*/)")
 end
 
 return M

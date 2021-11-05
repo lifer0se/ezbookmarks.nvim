@@ -11,11 +11,20 @@ local actions = require "telescope.actions"
 local action_state = require "telescope.actions.state"
 local utils = require "ezbookmarks.utils"
 local bookmark_file = vim.fn.stdpath('data') .. '/ezbookmarks.txt'
-local f = assert(io.popen("echo $HOME", 'r'))
-local home_path = assert(f:read('*a')):gsub("\n","")
-f:close()
+
+local cwd_on_open
+local use_bookmark_dir
+local open_new_tab
 
 local M = {}
+
+
+M.setup = function (opts)
+  cwd_on_open = opts.cwd_on_open
+  use_bookmark_dir = opts.use_bookmark_dir
+  open_new_tab = opts.open_new_tab
+end
+
 
 M.AddBookmark = function()
   local path = vim.fn.expand("%:p")
@@ -86,9 +95,35 @@ M.AddBookmarkDirectory = function ()
 end
 
 
-local function open_function(selection)
+local function open(selection)
   if selection ~= nil then
-    vim.cmd(':edit ' .. utils.get_path_from_config(selection[1]))
+
+    local dir_found = false
+    if use_bookmark_dir == 1 then
+      local lines = utils.get_lines_from_bookmark_file()
+      for k, f in pairs(lines) do
+        local path = utils.sub_home_path(f)
+        if string.match(selection, path) then
+          if string.sub(path, -1) == "/" then
+            vim.cmd(':cd ' .. path)
+            dir_found = true
+            break
+          end
+        end
+      end
+    end
+
+    if cwd_on_open == 1 then
+      if dir_found == false then
+        vim.cmd(':cd ' .. utils.get_path_from_file(selection))
+      end
+    end
+
+    if open_new_tab == 1 then
+      vim.cmd(':tabedit ' .. selection)
+    else
+      vim.cmd(':edit ' .. selection)
+    end
   end
 end
 
@@ -102,21 +137,13 @@ M.OpenBookmark = function(opts)
   local n = {}
   for k, v in pairs(lines) do
     if vim.fn.filereadable(v) == 1 then
-      if string.sub(v, 0, #home_path) == home_path then
-        n[#n + 1] = "~" .. string.sub(v, #home_path + 1, #v)
-      else
-        n[#n + 1] = v
-      end
+      n[#n + 1] = utils.sub_home_path(v)
     elseif vim.fn.isdirectory(v) == 1 then
       local p = io.popen("find ".. v .." -type f")
       for f in p:lines() do
         local tmp = string.sub(f, #v + 1, #f)
         if not string.find(tmp, ".git") then
-          if string.sub(f, 0, #home_path) == home_path then
-            n[#n + 1] = "~" .. string.sub(f, #home_path + 1, #f)
-          else
-            n[#n + 1] = f
-          end
+          n[#n + 1] = utils.sub_home_path(f)
         end
       end
     end
@@ -135,7 +162,7 @@ M.OpenBookmark = function(opts)
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
-        open_function(action_state.get_selected_entry())
+        open(action_state.get_selected_entry()[1])
       end)
       return true
     end,
@@ -143,7 +170,7 @@ M.OpenBookmark = function(opts)
 end
 
 
-local function remove_function (lines)
+local function remove (lines)
   local selection = action_state.get_selected_entry()
   if selection ~= nil then
     local n = ""
@@ -180,7 +207,7 @@ M.RemoveBookmark = function(opts)
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
-        remove_function(lines)
+        remove(lines)
       end)
       return true
     end,
