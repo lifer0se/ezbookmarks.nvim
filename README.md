@@ -27,6 +27,7 @@ Plug 'lifer0se/ezbookmarks.nvim'
 :lua require"ezbookmarks".AddBookmarkDirectory()
 ```
 A bookmark directory will include all the files in that directory and it's sub-directories to the OpenBookmark list.
+
 When removing a directory from bookmarks, only the directory will appear on the list, not all included files.
 
 #### To remove a bookmark:
