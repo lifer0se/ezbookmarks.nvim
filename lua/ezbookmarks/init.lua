@@ -60,7 +60,11 @@ M.AddBookmarkDirectory = function ()
     return
   end
   if string.sub(path, #path) ~= '/' then
-    path = path .. '/'
+    if (vim.fn.has("win32") == 0) then
+      path = path .. '/'
+    else
+      path = path .. '\\'
+    end
   end
 
   local b = utils.bookmark_exists(path)
@@ -104,7 +108,14 @@ local function open(selection)
       for k, f in pairs(lines) do
         local path = utils.sub_home_path(f)
         if string.match(selection, path) then
-          if string.sub(path, -1) == "/" then
+          local b = false
+          if (vim.fn.has("win32") == 0) then
+            b = string.sub(path, -1) == "/"
+          else
+            b = string.sub(path, -1) == "\\"
+          end
+
+          if b then
             vim.cmd(':cd ' .. path)
             dir_found = true
             break
@@ -139,7 +150,12 @@ M.OpenBookmark = function(opts)
     if vim.fn.filereadable(v) == 1 then
       n[#n + 1] = utils.sub_home_path(v)
     elseif vim.fn.isdirectory(v) == 1 then
-      local p = io.popen("find ".. v .." -type f")
+      local p = ""
+      if (vim.fn.has("win32") == 0) then
+        p = io.popen("find ".. v .." -type f")
+      else
+        p = io.popen("cd " .. v .. " && dir /s /b | findstr /m /c:.")
+      end
       for f in p:lines() do
         local tmp = string.sub(f, #v + 1, #f)
         if not string.find(tmp, ".git") then

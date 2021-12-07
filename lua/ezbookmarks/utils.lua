@@ -59,12 +59,17 @@ end
 M.sub_home_path = function (file)
   if string.sub(file, 0, #home_path) == home_path then
     return "~" .. string.sub(file, #home_path + 1, #file)
+  else
+    return file
   end
-  return file
 end
 
 M.get_path_from_file = function (file)
-  return file:match("(.*/)")
+  if (vim.fn.has("win32") == 0) then
+    return file:match("(.*/)")
+  else
+    return file:match("(.*\\)")
+  end
 end
 
 return M
