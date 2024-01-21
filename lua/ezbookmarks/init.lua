@@ -154,7 +154,10 @@ M.OpenBookmark = function(opts)
       if (vim.fn.has("win32") == 0) then
         p = io.popen("find ".. v .." -type f")
       else
-        p = io.popen("cd " .. v .. " && dir /s /b | findstr /m /c:.")
+        -- The double quotes are im important. Without it, the
+        -- dir command does not work with paths that contain
+        -- forward slashes like D:/my-data
+        p = io.popen('dir "' .. v .. '" /s /b /a-d')
       end
       for f in p:lines() do
         local tmp = string.sub(f, #v + 1, #f)
