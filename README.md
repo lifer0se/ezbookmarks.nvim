@@ -21,22 +21,28 @@ Plug 'lifer0se/ezbookmarks.nvim'
 ```lua
 :lua require"ezbookmarks".AddBookmark()
 ```
+Bookmarks can be files or directories.
 
 
-#### To add a directory as a bookmark:
+#### To add an file to the ignore list:
 
 ```lua
-:lua require"ezbookmarks".AddBookmarkDirectory()
+:lua require"ezbookmarks".AddIgnore()
 ```
-A bookmark directory will include all the files in that directory and it's sub-directories to the OpenBookmark list.
-
-When removing a directory from bookmarks, only the directory will appear on the list, not all included files.
+Any nested file or directory of a bookmark can be ignored. It will not show on the bookmark list.
 
 
 #### To remove a bookmark:
 
 ```lua
 :lua require"ezbookmarks".RemoveBookmark()
+```
+
+
+#### To remove an ignore entry:
+
+```lua
+:lua require"ezbookmarks".RemoveIgnore()
 ```
 
 
@@ -52,7 +58,6 @@ When removing a directory from bookmarks, only the directory will appear on the 
 ```lua
 require('ezbookmarks').setup{
   cwd_on_open = 1,        -- change directory when opening a bookmark
-  use_bookmark_dir = 1,   -- if a bookmark is part of a bookmarked directory, cd to that direcrtory (works independently of cwd_on_open)
   open_new_tab = 1,       -- open bookmark in a new tab.
 }
 ```
