@@ -149,11 +149,13 @@ M.OpenBookmark = function(opts)
 
 		for n in nested:lines() do
 			if utils.path_exists_in_list(n, ignore_list) ~= 0 then
-				goto continue
+				goto next
 			end
-			if not string.find(string.sub(n, #path + 1, #n), ".git") then
-				selection[#selection + 1] = utils.sub_home_path(n)
+			if string.find(string.sub(n, #path + 1, #n), ".git") then
+				goto next
 			end
+			selection[#selection + 1] = utils.sub_home_path(n)
+			::next::
 		end
 
 		::continue::
